@@ -41,9 +41,19 @@ def log(message):
                                                                                            str(message.chat.id),
                                                                                            message.text))
 
+@bot.message_handler(commands=['addsticker'])
+def add_sticker_handler(message):
+    bot.send_message(message.chat.id, "теперь отправь мне стикер", reply_markup=types.ForceReply())
 
-@bot.message_handler(content_types=['sticker'])
+
+
+
+
+@bot.message_handler(func=lambda m: m.reply_to_message is not None, content_types=['sticker'])
 def print_sticker_id(sticker):
+    if sticker.reply_to_message.text != "теперь отправь мне стикер":
+        return
+
     if collection.find_one({"file_id": sticker.sticker.file_id}) is None:
         bot.send_message(sticker.chat.id, config.text_send_title + sticker.sticker.file_id,
                          reply_markup=types.ForceReply())
@@ -68,6 +78,7 @@ def handler_title_for_sticker(message):
         bot.send_sticker("149036177", sticker_id)
         bot.send_message("149036177", "added new sticker id=" + sticker_id +
                          " title = " + sticker_title)
+
 
 
 bot.polling(none_stop=True, interval=0)
